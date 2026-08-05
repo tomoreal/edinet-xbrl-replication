@@ -1,0 +1,39 @@
+cff-version: 1.2.0
+message: "本データを利用した場合は、下記の情報で引用してください。"
+title: "edinet-xbrl-replication: EDINET/XBRL解析研究の再現データ"
+abstract: >-
+  金融庁EDINETで公開されている有価証券報告書のXBRLを解析して作成した、
+  経営方針と役員報酬におけるKPI開示に関する研究の確定データと再現用スクリプト。
+  データベース接続を必要とせず、収録CSVとRスクリプトのみで論文の主要数値を
+  再現できる。
+type: dataset
+version: 1.1.0
+date-released: "2026-08-05"
+authors:
+  - family-names: "Tomo"
+    given-names: "Makoto"
+    alias: "塘 誠"
+    affiliation: "Seijo University, Faculty of Economics"
+    # orcid: "https://orcid.org/0000-0000-0000-0000"
+license: CC-BY-4.0
+doi: "10.5281/zenodo.21806185"
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.21806185"
+    description: "このバージョン（v1.1.0）のDOI。再現性のためにはこちらを引用する。"
+  - type: doi
+    value: "10.5281/zenodo.21804805"
+    description: "全バージョンを代表するDOI（Concept DOI）。常に最新版を指す。"
+repository-code: "https://github.com/tomoreal/edinet-xbrl-replication"
+url: "https://doi.org/10.5281/zenodo.21806185"
+keywords:
+  - EDINET
+  - XBRL
+  - 管理会計
+  - management accounting
+  - KPI disclosure
+  - 有価証券報告書
+  - executive compensation
+  - replication data
+languages:
+  - jpn
