@@ -57,25 +57,27 @@ shasum -a 256 jama2026/panel_kpi.csv    # macOS
 
 ## 引用
 
-本データを利用した場合は、下記のDOIを引用してください。DOIはリリースごとに発行され、
-すべてのバージョンを指す代表DOI（Concept DOI）と、特定バージョンを指すDOIがあります。
-**再現性のためには特定バージョンのDOIを引用してください。**
+本パッケージのDOI（全バージョンを代表する Concept DOI）は次のとおりです。
+常に最新版のレコードへ転送されます。
 
-| DOI | 指す対象 |
-|---|---|
-| [10.5281/zenodo.21806185](https://doi.org/10.5281/zenodo.21806185) | **v1.1.0**（特定バージョン。引用にはこちら） |
-| [10.5281/zenodo.21804805](https://doi.org/10.5281/zenodo.21804805) | 全バージョン代表（Concept DOI。常に最新版を指す） |
+**[10.5281/zenodo.21804805](https://doi.org/10.5281/zenodo.21804805)**
 
 ```
-塘 誠 (2026) edinet-xbrl-replication: EDINET/XBRL解析研究の再現データ (Version 1.1.0)
-[Data set]. Zenodo. https://doi.org/10.5281/zenodo.21806185
+塘 誠 (2026) edinet-xbrl-replication: EDINET/XBRL解析研究の再現データ
+[Data set]. Zenodo. https://doi.org/10.5281/zenodo.21804805
 ```
 
 ```
 Tomo, M. (2026). edinet-xbrl-replication: Replication data for research based on
-EDINET/XBRL filings (Version 1.1.0) [Data set]. Zenodo.
-https://doi.org/10.5281/zenodo.21806185
+EDINET/XBRL filings [Data set]. Zenodo.
+https://doi.org/10.5281/zenodo.21804805
 ```
+
+**特定のバージョンを引用する場合**は、上記からたどれる Zenodo のレコードページに
+表示される「Cite all versions? You can cite all versions by using the DOI …」の下の、
+そのバージョン固有のDOIをお使いください。バージョン固有のDOIはリリース時にZenodoが
+発行するため、リポジトリ内のファイルには記載していません（アーカイブ自身が自分の
+DOIを含むことはできないため）。
 
 機械可読な引用情報は [`CITATION.cff`](CITATION.cff) にあります。
 
