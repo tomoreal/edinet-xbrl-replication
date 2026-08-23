@@ -7,8 +7,8 @@ abstract: >-
   データベース接続を必要とせず、収録CSVとRスクリプトのみで論文の主要数値を
   再現できる。
 type: dataset
-version: 1.1.1
-date-released: "2026-08-05"
+version: 1.2.0
+date-released: "2026-08-23"
 authors:
   - family-names: "Tomo"
     given-names: "Makoto"
