@@ -1,6 +1,6 @@
 {
   "title": "edinet-xbrl-replication: EDINET/XBRL解析研究の再現データ",
-  "description": "<p>金融庁EDINETで公開されている有価証券報告書のXBRLを解析して作成した、経営方針と役員報酬におけるKPI開示に関する研究の確定データと再現用スクリプトです。データベースへの接続は不要で、収録のCSVとRスクリプトのみで論文の主要数値を再現できます。</p><p>収録: KPI採用パネル（4,087行・P期2,034社／P-4期2,053社）と再現用Rスクリプト1本。分析基準日を固定した凍結データです。</p><p>Replication data and an R script for research on KPI disclosure in the management-policy and executive-compensation sections of Japanese annual securities reports (EDINET, Financial Services Agency). No database access is required; the included CSV and script alone reproduce the main results.</p>",
+  "description": "<p>金融庁EDINETで公開されている有価証券報告書のXBRLを解析して作成した、経営方針と役員報酬におけるKPI開示に関する研究の確定データと再現用スクリプトです。データベースへの接続は不要で、収録のCSVとRスクリプトのみで論文の主要数値を再現できます。</p><p>収録: KPI採用パネル（4,083行・P期2,030社／P-4期2,053社）と再現用Rスクリプト1本。分析基準日を固定した凍結データです。</p><p>Replication data and an R script for research on KPI disclosure in the management-policy and executive-compensation sections of Japanese annual securities reports (EDINET, Financial Services Agency). No database access is required; the included CSV and script alone reproduce the main results.</p>",
   "upload_type": "dataset",
   "language": "jpn",
   "license": "cc-by-4.0",
