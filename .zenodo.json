@@ -4,7 +4,8 @@
   "upload_type": "dataset",
   "language": "jpn",
   "license": "cc-by-4.0",
-  "access_right": "open",
+  "access_right": "restricted",
+  "access_conditions": "<p>誌上公表までの間、ファイルへのアクセスを制限しています。研究目的でのご利用をご希望の場合は、このレコードの「Request access」から著者へご連絡ください。</p><p>Access to the files is restricted until the associated paper is published. If you would like to use the data for research purposes, please contact the author via the \"Request access\" button on this record.</p>",
   "creators": [
     {
       "name": "Tomo, Makoto",
