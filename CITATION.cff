@@ -7,7 +7,7 @@ abstract: >-
   データベース接続を必要とせず、収録CSVとRスクリプトのみで論文の主要数値を
   再現できる。
 type: dataset
-version: 1.2.0
+version: 1.3.0
 date-released: "2026-08-23"
 authors:
   - family-names: "Tomo"
@@ -16,16 +16,10 @@ authors:
     affiliation: "Seijo University, Faculty of Economics"
     # orcid: "https://orcid.org/0000-0000-0000-0000"
 license: CC-BY-4.0
-doi: "10.5281/zenodo.21804805"
-identifiers:
-  - type: doi
-    value: "10.5281/zenodo.21804805"
-    description: >-
-      全バージョンを代表するDOI（Concept DOI）。常に最新版を指す。
-      バージョン固有のDOIはリリース時にZenodoが発行するため、
-      アーカイブ自身には記載できない。Zenodoのレコードページを参照。
+# DOIは次のリリースから記載する。リリース時にZenodoが発行するため、
+# 同じリリースのアーカイブに含めることができない（1回目で発行・2回目で記載）。
 repository-code: "https://github.com/tomoreal/edinet-xbrl-replication"
-url: "https://doi.org/10.5281/zenodo.21804805"
+url: "https://github.com/tomoreal/edinet-xbrl-replication"
 keywords:
   - EDINET
   - XBRL
