@@ -1,5 +1,7 @@
 # edinet-xbrl-replication
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21804805.svg)](https://doi.org/10.5281/zenodo.21804805)
+
 EDINET（金融庁）で公開されている有価証券報告書のXBRLを解析した研究の、**確定データと再現用
 スクリプト**を収めたリポジトリです。データベースへの接続は不要で、各ディレクトリのCSVと
 スクリプトだけで論文の主要数値を再現できます。
@@ -55,24 +57,27 @@ shasum -a 256 jama2026/panel_kpi.csv    # macOS
 
 ## 引用
 
-本パッケージはZenodoでアーカイブしています。**DOIは次のリリースから記載します**
-（DOIはリリース時にZenodoが発行するため、それを含むアーカイブを同時に作ることが
-できません。1回目のリリースでDOIを発行し、2回目のリリースで記載する運用です）。
+本パッケージのDOI（全バージョンを代表する Concept DOI）は次のとおりです。
+常に最新版のレコードへ転送されます。
 
-引用形式は次のとおりです。DOIはZenodoのレコードページに表示されるものをお使いください。
+**[10.5281/zenodo.21804805](https://doi.org/10.5281/zenodo.21804805)**
 
 ```
 塘 誠 (2026) edinet-xbrl-replication: EDINET/XBRL解析研究の再現データ
-[Data set]. Zenodo.
+[Data set]. Zenodo. https://doi.org/10.5281/zenodo.21804805
 ```
 
 ```
 Tomo, M. (2026). edinet-xbrl-replication: Replication data for research based on
 EDINET/XBRL filings [Data set]. Zenodo.
+https://doi.org/10.5281/zenodo.21804805
 ```
 
-Zenodoのレコードページには、全バージョンを代表する Concept DOI と、各バージョン固有の
-DOIの両方が表示されます。特定のバージョンを引用する場合は後者をお使いください。
+**特定のバージョンを引用する場合**は、上記からたどれる Zenodo のレコードページに
+表示される「Cite all versions? You can cite all versions by using the DOI …」の下の、
+そのバージョン固有のDOIをお使いください。バージョン固有のDOIはリリース時にZenodoが
+発行するため、リポジトリ内のファイルには記載していません（アーカイブ自身が自分の
+DOIを含むことはできないため）。
 
 機械可読な引用情報は [`CITATION.cff`](CITATION.cff) にあります。
 

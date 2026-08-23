@@ -7,8 +7,9 @@
 データベースへの接続は不要です。本ディレクトリのCSVとスクリプトだけで再現できます。
 
 - **公開先**: https://github.com/tomoreal/edinet-xbrl-replication （`jama2026/` 配下）
-- **DOI**: 次のリリースから記載します（Zenodoのレコードページに、全バージョンを代表する
-  Concept DOIと各バージョン固有のDOIが表示されます）
+- **DOI**: [10.5281/zenodo.21804805](https://doi.org/10.5281/zenodo.21804805)
+  （全バージョンを代表するConcept DOI。常に最新版のレコードへ転送されます。
+  バージョン固有のDOIは、転送先のZenodoのページに表示されます）
 
 ---
 
