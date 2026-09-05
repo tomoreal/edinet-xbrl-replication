@@ -1,22 +1,22 @@
 #!/usr/bin/env Rscript
-# verify_kpi_from_csv.R — 公開用CSV（docs/JAMA2026_data/panel_kpi.csv）だけを入力に
-#                          論文5.2節のKPI分析の主要数値を再現する
+# verify_kpi_from_csv.R — 公開用CSVだけを入力に、論文の主要数値を再現する
 #
-# DBには一切触れない。公開データを受け取った第三者が、CSVと本スクリプトのみで
-# McNemar検定（mid-p）・不一致オッズ比・報酬への反映率、およびその市場区分別・
-# 時点別（P期／P-4期）の内訳を再現できることを確認するためのもの。
+# DBには一切触れない。公開データを受け取った第三者が、本ディレクトリのCSVと
+# 本スクリプトのみで、次を再現できることを確認するためのもの。
 #
-# 標本構築ロジックそのものをDBから独立に再現する検証は verify_in_r_kpi_mcnemar.R が
-# 担う。本スクリプトはその一段外側で、確定した標本から論文の表が導けることを示す。
-#
-# 実行:
-#   Rscript db_exploration/verify_kpi_from_csv.R
+#   1. セクション別のKPI採用率（表2）
+#   2. 経営方針で両カテゴリーを掲げた企業の2×2クロス表と反映率・McNemar検定（表5・4.1）
+#   3. 採用の組合せ（単独／併用）と併用率（表4・4.2）
+#   4. P期とP-4期の反映率の比較（4.4）
+#   5. 指標名レベルの一致率（5章。indicator_kpi.csv を使用）
 #
 # 依存パッケージなし（base Rのみ）。
+#
+# 実行:
+#   Rscript verify_kpi_from_csv.R
 
 # データの所在: 環境変数 JAMA2026_DATA > スクリプトと同じディレクトリ >
 # リポジトリ内の docs/JAMA2026_data > カレントディレクトリ の順に探す。
-# 公開パッケージを任意の場所へ展開しても動くようにするため、絶対パスは持たない。
 find_data_dir <- function(sentinel) {
   sp  <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE)[1])
   sd  <- if (!is.na(sp) && nzchar(sp)) dirname(normalizePath(sp)) else getwd()
@@ -29,17 +29,17 @@ find_data_dir <- function(sentinel) {
                sentinel))
 }
 DIR <- find_data_dir("panel_kpi.csv")
-CSV <- file.path(DIR, "panel_kpi.csv")
 
-d <- read.csv(CSV, fileEncoding = "UTF-8", stringsAsFactors = FALSE)
+d <- read.csv(file.path(DIR, "panel_kpi.csv"), fileEncoding = "UTF-8",
+              stringsAsFactors = FALSE)
 cat(sprintf("CSV読込: %s 行（P %s 社 / P-4 %s 社）\n\n",
             format(nrow(d), big.mark = ","),
             format(sum(d$rp == "P"), big.mark = ","),
             format(sum(d$rp == "P-4"), big.mark = ",")))
 
 # カテゴリー（列語幹と表示名）。定義は MANIFEST_kpi.txt を参照。
-CATS <- c(acc = "会計数値", ratio = "財務比率", nongaap = "non-GAAP指標",
-          nonfin = "非財務指標", stock = "株価関連指標")
+CATS <- c(acc = "金額指標", ratio = "財務比率",
+          nonfin = "非財務指標", stock = "株主還元・株価関連指標")
 
 # McNemar mid-p（両側）
 #   mid-p = 2 * [ P(X<=k) - 0.5*P(X=k) ],  X ~ Binomial(b+c, 0.5),  k = min(b,c)
@@ -50,72 +50,113 @@ midp <- function(b, c) {
   k <- min(b, c)
   min(1, 2 * (pbinom(k, n, 0.5) - 0.5 * dbinom(k, n, 0.5)))
 }
-
-# 2×2分割表: a=両方採用, b=方針のみ, c=報酬のみ, d=両方不採用
-cells <- function(sub, slug) {
-  p <- sub[[paste0("pol_", slug)]]
-  y <- sub[[paste0("pay_", slug)]]
-  c(a = sum(p == 1 & y == 1), b = sum(p == 1 & y == 0),
-    c = sum(p == 0 & y == 1), d = sum(p == 0 & y == 0))
-}
-
 fmt_p <- function(p) if (p < 0.001) "<0.001" else sprintf("%.3f", p)
-
-report <- function(sub, title) {
-  cat(sprintf("=== %s（n=%s） ===\n", title, format(nrow(sub), big.mark = ",")))
-  cat(sprintf("%-14s %6s %6s %7s %9s %10s\n",
-              "カテゴリー", "b", "c", "OR(c/b)", "mid-p", "反映率"))
-  for (slug in names(CATS)) {
-    x <- cells(sub, slug)
-    or <- if (x["b"] > 0) x["c"] / x["b"] else NA
-    rf <- if (x["a"] + x["b"] > 0) x["a"] / (x["a"] + x["b"]) else NA
-    cat(sprintf("%-14s %6d %6d %7.2f %9s %9.1f%%\n",
-                CATS[[slug]], x["b"], x["c"], or,
-                fmt_p(midp(x["b"], x["c"])), rf * 100))
-  }
-  cat("\n")
-}
 
 P  <- d[d$rp == "P", ]
 P4 <- d[d$rp == "P-4", ]
 
-# ── 表: 不一致の非対称性（プール・P期）────────────────────────────
-report(P, "P期 プール（プライム+スタンダード）")
-
-# ── 表: 市場区分別（P期）───────────────────────────────────────
-report(P[P$market == "プライム", ],     "P期 プライム")
-report(P[P$market == "スタンダード", ], "P期 スタンダード")
-
-# ── 表: 時点間比較（プール）────────────────────────────────────
-cat("=== 時点間比較（プール、OR と反映率）===\n")
-cat(sprintf("%-14s %9s %9s %11s %11s\n",
-            "カテゴリー", "OR(P期)", "OR(P-4期)", "反映率(P期)", "反映率(P-4期)"))
+# ── 1. セクション別の採用率（表2）───────────────────────────────
+cat("=== 1. セクション別のKPI採用率（P期、表2）===\n")
+cat(sprintf("%-22s %10s %10s %10s\n", "カテゴリー", "分析標本", "プライム", "スタンダード"))
 for (slug in names(CATS)) {
-  x <- cells(P, slug); x4 <- cells(P4, slug)
-  cat(sprintf("%-14s %9.2f %9.2f %10.1f%% %10.1f%%\n", CATS[[slug]],
-              x["c"] / x["b"], x4["c"] / x4["b"],
-              x["a"] / (x["a"] + x["b"]) * 100,
-              x4["a"] / (x4["a"] + x4["b"]) * 100))
-}
-cat("\n")
-
-# ── 表: 株価関連指標の市場区分×時点 ───────────────────────────
-cat("=== 株価関連指標 市場区分×時点（OR と mid-p）===\n")
-for (rp in c("P", "P-4")) {
-  s <- if (rp == "P") P else P4
-  for (mk in c("プライム", "スタンダード")) {
-    x <- cells(s[s$market == mk, ], "stock")
-    cat(sprintf("  %-4s %-8s OR=%.2f  (b=%d, c=%d, mid-p=%s)\n",
-                rp, mk, x["c"] / x["b"], x["b"], x["c"],
-                fmt_p(midp(x["b"], x["c"]))))
+  for (sec in c("pol", "pay")) {
+    v <- P[[paste0(sec, "_", slug)]]
+    lab <- paste0(if (sec == "pol") "経営方針 " else "役員報酬 ", CATS[[slug]])
+    cat(sprintf("%-22s %9.0f%% %9.0f%% %9.0f%%\n", lab, mean(v) * 100,
+                mean(v[P$market == "プライム"]) * 100,
+                mean(v[P$market == "スタンダード"]) * 100))
   }
 }
 cat("\n")
 
-# ── 参考: セクション別の採用率 ─────────────────────────────────
-cat("=== 参考: セクション別の採用率（P期）===\n")
-for (slug in names(CATS)) {
-  cat(sprintf("  %-14s 経営方針 %5.1f%%   役員報酬 %5.1f%%\n", CATS[[slug]],
-              mean(P[[paste0("pol_", slug)]]) * 100,
-              mean(P[[paste0("pay_", slug)]]) * 100))
+# ── 2. 経営方針で両カテゴリーを掲げた企業の2×2（表5・4.1）─────────
+both <- P[P$pol_acc == 1 & P$pol_ratio == 1, ]
+a <- sum(both$pay_acc == 1 & both$pay_ratio == 1)
+b <- sum(both$pay_acc == 1 & both$pay_ratio == 0)   # 金額指標のみ反映
+c_ <- sum(both$pay_acc == 0 & both$pay_ratio == 1)  # 財務比率のみ反映
+dd <- sum(both$pay_acc == 0 & both$pay_ratio == 0)
+n <- nrow(both)
+cat(sprintf("=== 2. 経営方針で両カテゴリーを掲げた企業（n=%s、表5）===\n",
+            format(n, big.mark = ",")))
+cat(sprintf("  両方反映 %d (%.0f%%)  金額指標のみ %d (%.0f%%)  財務比率のみ %d (%.0f%%)  いずれも非反映 %d (%.0f%%)\n",
+            a, a / n * 100, b, b / n * 100, c_, c_ / n * 100, dd, dd / n * 100))
+cat(sprintf("  反映率: 金額指標 %.0f%%  財務比率 %.0f%%  差 %+.0fpt\n",
+            (a + b) / n * 100, (a + c_) / n * 100, (b - c_) / n * 100))
+cat(sprintf("  McNemar mid-p = %s（不一致セル b=%d, c=%d）\n",
+            fmt_p(midp(b, c_)), b, c_))
+# 対応あり標本の比率差の95%信頼区間（Tango 1998 の漸近スコア法）
+#   Z(delta) = (b - c - n*delta) / sqrt(n*(p21~ + p12~ - delta^2))
+#   p21~, p12~ は p21 - p12 = delta の制約のもとでの最尤推定量（数値解）。
+tango_ci <- function(b, c, n, conf = 0.95) {
+  z <- qnorm(1 - (1 - conf) / 2)
+  rest <- n - b - c
+  zstat <- function(delta) {
+    nll <- function(p21) {
+      p12 <- p21 - delta
+      p0  <- 1 - p21 - p12
+      if (p21 <= 0 || p12 <= 0 || p0 <= 0) return(1e12)
+      -(b * log(p21) + c * log(p12) + rest * log(p0))
+    }
+    lo <- max(delta, 0) + 1e-9
+    hi <- (1 + delta) / 2 - 1e-9
+    p21 <- optimize(nll, c(lo, hi))$minimum
+    p12 <- p21 - delta
+    (b - c - n * delta) / sqrt(n * (p21 + p12 - delta^2))
+  }
+  point <- (b - c) / n
+  lo <- uniroot(function(x) zstat(x) - z, c(-0.999, point - 1e-6))$root
+  hi <- uniroot(function(x) zstat(x) + z, c(point + 1e-6, 0.999))$root
+  c(lo, hi) * 100
+}
+ci <- tango_ci(b, c_, n)
+cat(sprintf("  差の95%%信頼区間（Tango 1998）: [%+.0f, %+.0f]pt\n", ci[1], ci[2]))
+cat(sprintf("  「いずれも非反映」の%d社を除いても mid-p = %s\n\n",
+            dd, fmt_p(midp(b, c_))))
+
+# ── 3. 採用の組合せと併用率（表4・4.2）──────────────────────────
+cat("=== 3. 単独採用と併用（P期、表4）===\n")
+for (sec in c("pol", "pay")) {
+  acc <- P[[paste0(sec, "_acc")]]; rat <- P[[paste0(sec, "_ratio")]]
+  lab <- if (sec == "pol") "経営方針" else "役員報酬"
+  n_acc <- sum(acc == 1); n_rat <- sum(rat == 1); n_both <- sum(acc == 1 & rat == 1)
+  cat(sprintf("  %s: 金額指標の採用 %s 社（うち併用 %s 社 = %.0f%%）  財務比率の採用 %s 社（うち併用 %s 社 = %.0f%%）\n",
+              lab, format(n_acc, big.mark = ","), format(n_both, big.mark = ","),
+              n_both / n_acc * 100, format(n_rat, big.mark = ","),
+              format(n_both, big.mark = ","), n_both / n_rat * 100))
+}
+cat("\n")
+
+# ── 4. 時点間の比較（4.4）───────────────────────────────────────
+cat("=== 4. 反映率の時点間比較（P期 vs P-4期）===\n")
+cat(sprintf("%-22s %12s %12s\n", "カテゴリー", "反映率(P期)", "反映率(P-4期)"))
+for (slug in c("acc", "ratio")) {
+  rf <- function(s) {
+    p <- s[[paste0("pol_", slug)]]; y <- s[[paste0("pay_", slug)]]
+    sum(p == 1 & y == 1) / sum(p == 1) * 100
+  }
+  cat(sprintf("%-22s %11.1f%% %11.1f%%\n", CATS[[slug]], rf(P), rf(P4)))
+}
+cat("\n")
+
+# ── 5. 指標名レベルの一致率（5章）───────────────────────────────
+ind_path <- file.path(DIR, "indicator_kpi.csv")
+if (file.exists(ind_path)) {
+  ind <- read.csv(ind_path, fileEncoding = "UTF-8", stringsAsFactors = FALSE)
+  cat(sprintf("=== 5. 指標名レベルの一致率（P期、%s 社。5章）===\n",
+              format(length(unique(ind$firm)), big.mark = ",")))
+  cat("経営方針で当該指標名を掲げた企業のうち、役員報酬でも同一指標名を用いる割合\n")
+  pol <- ind[ind$pol == 1, ]
+  agg <- aggregate(cbind(n = pol$pol, hit = pol$pay),
+                   by = list(indicator = pol$indicator, category = pol$category), FUN = sum)
+  agg <- agg[agg$n >= 100, ]
+  agg <- agg[order(-agg$hit / agg$n), ]
+  cat(sprintf("%-16s %-14s %8s %10s\n", "指標名", "カテゴリー", "経営方針", "一致率"))
+  for (i in seq_len(nrow(agg))) {
+    cat(sprintf("%-16s %-14s %8s %9.0f%%\n", agg$indicator[i], CATS[[agg$category[i]]],
+                format(agg$n[i], big.mark = ","), agg$hit[i] / agg$n[i] * 100))
+  }
+  cat("\nカテゴリー水準の反映率（金額指標97%・財務比率39%）は、これらの指標名の一致を\n")
+  cat("カテゴリー内の論理和で束ねた値である（同一指標の一致率ではない）。\n")
+} else {
+  cat("（indicator_kpi.csv が見つからないため、指標名レベルの一致率は省略）\n")
 }
